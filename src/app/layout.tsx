@@ -4,8 +4,8 @@ import LenisProvider from "@/components/LenisProvider";
 import CustomCursor from "@/components/CustomCursor";
 
 export const metadata: Metadata = {
-  title: "Your Name — Developer Portfolio",
-  description: "Full Stack Developer & AI Engineer — Soul Society",
+  title: "The Living Blade Archive — Yaswanth",
+  description: "An interactive spiritual archive by Yaswanth — full-stack engineer, AI builder, and signal seeker.",
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body><link rel="preload" as="image" href="/hero-spirit-night.webp" fetchPriority="high" />
         <LenisProvider>
           <CustomCursor />
           {children}
