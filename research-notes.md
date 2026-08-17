@@ -47,3 +47,7 @@ The updated local page renders with the new `SOUND OFF` control, the archive gat
 ## Bankai and performance verification
 
 The local page now exposes `RELEASE BANKAI` with the `B` shortcut in the archive header. The page title remains correct, the hero and relic references resolve to WebP assets, and the optimized asset payload is approximately 1.1 MB instead of roughly 19 MB of source JPEGs. Browser rendering showed no obvious runtime errors in the initial state.
+
+## Hollow Mask verification
+
+The local archive renders a new `HOLLOW MASK M` control in the navigation header alongside Bankai. The page includes the keyboard hint and the updated WebP assets. The build passes after adding the mask state, custom crest overlay, mask palette, and optional mask sound cue.

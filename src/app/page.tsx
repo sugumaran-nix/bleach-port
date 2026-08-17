@@ -26,6 +26,7 @@ function Glyph({ small = false }: { small?: boolean }) {
 export default function Home() {
   const [entered, setEntered] = useState(false);
   const [bankai, setBankai] = useState(false);
+  const [mask, setMask] = useState(false);
   const [menu, setMenu] = useState(false);
   const [activeRelic, setActiveRelic] = useState(relics[0]);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
@@ -48,6 +49,20 @@ export default function Home() {
   }, [entered]);
 
   useEffect(() => {
+    const onMaskKey = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "m" && entered) {
+        setMask((current) => {
+          const next = !current;
+          playArchiveCue("mask");
+          return next;
+        });
+      }
+    };
+    window.addEventListener("keydown", onMaskKey);
+    return () => window.removeEventListener("keydown", onMaskKey);
+  }, [entered]);
+
+  useEffect(() => {
     const onMove = (event: MouseEvent) => setMouse({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100 });
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
@@ -56,16 +71,17 @@ export default function Home() {
   const chapter = useMemo(() => entered ? "ARCHIVE" : "GATE", [entered]);
 
   return (
-    <div className={`archive-shell ${bankai ? "bankai-mode" : ""}`} style={{ "--mx": `${mouse.x}%`, "--my": `${mouse.y}%` } as React.CSSProperties}>
+    <div className={`archive-shell ${bankai ? "bankai-mode" : ""} ${mask ? "mask-mode" : ""}`} style={{ "--mx": `${mouse.x}%`, "--my": `${mouse.y}%` } as React.CSSProperties}>
       <ArchiveInteractions />
       <Soundboard />
       <AnimatePresence>{bankai && <motion.div className="bankai-release" initial={{ opacity: 0, scale: 1.12 }} animate={{ opacity: [0, 1, 0], scale: [1.12, 1, 1] }} transition={{ duration: 1.35, ease: "easeInOut" }}><span>BANKAI</span><small>ARCHIVE RELEASED</small></motion.div>}</AnimatePresence>
+      <AnimatePresence>{mask && <motion.div className="mask-release" initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.15 }}><div className="mask-crest"><i /><b /><em /></div><span>HOLLOW MASK</span><small>INSTINCT UNSEALED</small></motion.div>}</AnimatePresence>
       <AnimatePresence>{!entered && <Gate onEnter={() => setEntered(true)} />}</AnimatePresence>
       <motion.div className="top-signal" style={{ scaleX: smoothProgress }} />
       <header className="archive-header">
         <a href="#gate" className="brand-lockup" aria-label="Return to gate"><Glyph small /><span>ARCHIVE / 09</span></a>
         <div className="header-status"><Circle size={8} fill="currentColor" /> SIGNAL {chapter} <span className="header-line" /> 18.08.26</div>
-        <button className="bankai-trigger" onClick={() => { setBankai(!bankai); playArchiveCue("bankai"); }} aria-pressed={bankai}>{bankai ? "SEAL BANKAI" : "RELEASE BANKAI"}<span>B</span></button><button className="menu-trigger" onClick={() => { setMenu(!menu); playArchiveCue("menu"); }} aria-label="Open archive menu">{menu ? <X size={18} /> : <Menu size={18} />}</button>
+        <button className="mask-trigger" onClick={() => { setMask(!mask); playArchiveCue("mask"); }} aria-pressed={mask}>{mask ? "REMOVE MASK" : "HOLLOW MASK"}<span>M</span></button><button className="bankai-trigger" onClick={() => { setBankai(!bankai); playArchiveCue("bankai"); }} aria-pressed={bankai}>{bankai ? "SEAL BANKAI" : "RELEASE BANKAI"}<span>B</span></button><button className="menu-trigger" onClick={() => { setMenu(!menu); playArchiveCue("menu"); }} aria-label="Open archive menu">{menu ? <X size={18} /> : <Menu size={18} />}</button>
       </header>
       <AnimatePresence>{menu && <motion.nav className="menu-panel" initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}>{["gate", "signal", "vault", "ranks", "arsenal", "transmission"].map((item, index) => <a key={item} href={`#${item}`} onClick={() => setMenu(false)}><span>0{index + 1}</span>{item}</a>)}</motion.nav>}</AnimatePresence>
       <aside className="chapter-rail" aria-label="Archive chapters"><span className="rail-label">CHAPTERS</span><div className="rail-track"><motion.i style={{ top: signalX }} /></div>{["GATE", "SIGNAL", "VAULT", "RANKS", "ARSENAL", "TRANSMISSION"].map((item, index) => <a href={`#${item.toLowerCase()}`} key={item}><b>0{index + 1}</b><span>{item}</span></a>)}</aside>
@@ -89,5 +105,5 @@ export default function Home() {
 }
 
 function Gate({ onEnter }: { onEnter: () => void }) {
-  return <motion.div className="gate-loader" initial={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.8, delay: 0.2 } }}><div className="loader-sigil"><motion.div className="loader-ring" animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }} /><Glyph /></div><div className="loader-copy"><span>ARCHIVE // 09</span><strong>SIGNAL FOUND</strong><small>The unseen becomes useful.</small></div><button onClick={() => { playArchiveCue("entry"); onEnter(); }}>ENTER THE ARCHIVE <ArrowUpRight size={15} /></button><span className="loader-foot">CLICK TO WAKE THE WORLD / 001 // PRESS B TO RELEASE</span></motion.div>;
+  return <motion.div className="gate-loader" initial={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.8, delay: 0.2 } }}><div className="loader-sigil"><motion.div className="loader-ring" animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }} /><Glyph /></div><div className="loader-copy"><span>ARCHIVE // 09</span><strong>SIGNAL FOUND</strong><small>The unseen becomes useful.</small></div><button onClick={() => { playArchiveCue("entry"); onEnter(); }}>ENTER THE ARCHIVE <ArrowUpRight size={15} /></button><span className="loader-foot">CLICK TO WAKE THE WORLD / 001 // B: BANKAI / M: MASK</span></motion.div>;
 }
