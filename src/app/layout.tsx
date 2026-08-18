@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import LenisProvider from "@/components/LenisProvider";
 import CustomCursor from "@/components/CustomCursor";
+import FontLoader from "@/components/FontLoader";
 
 export const metadata: Metadata = {
   title: "The Living Blade Archive — Sugumaran S",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body><link rel="preload" as="image" href="/ichigo-reiatsu-hero.webp" fetchPriority="high" />
         <LenisProvider>
           <CustomCursor />
+          <FontLoader />
           {children}
         </LenisProvider>
       </body>
