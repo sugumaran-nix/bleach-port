@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body><link rel="preload" as="image" href="/hero-spirit-night.webp" fetchPriority="high" />
+      <body><link rel="preload" as="image" href="/ichigo-reiatsu-hero.webp" fetchPriority="high" />
         <LenisProvider>
           <CustomCursor />
           {children}
