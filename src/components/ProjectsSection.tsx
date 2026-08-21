@@ -114,34 +114,7 @@ function DirectionAwareCard({ project, delay }: { project: typeof projects[0]; d
           </span>
         </div>
 
-        {/* Hover overlay */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center gap-3"
-          animate={overlayStyle}
-          transition={{ duration: 0.25 }}
-          style={{ backgroundColor: "rgba(10,10,11,0.85)" }}
-        >
-          <a
-            href={project.github}
-            className="font-accent text-xs tracking-widest uppercase px-4 py-2"
-            style={{
-              color: "var(--white-soul)",
-              border: "1px solid var(--ash)",
-            }}
-          >
-            GitHub
-          </a>
-          <a
-            href={project.live}
-            className="font-accent text-xs tracking-widest uppercase px-4 py-2"
-            style={{
-              color: "var(--bg-void)",
-              backgroundColor: "var(--gold-spirit)",
-            }}
-          >
-            Live →
-          </a>
-        </motion.div>
+      {/* Project preview remains visual-only; actions live in the content flow for touch and keyboard users. */}
       </div>
 
       {/* Content */}
@@ -170,6 +143,11 @@ function DirectionAwareCard({ project, delay }: { project: typeof projects[0]; d
               {tag}
             </span>
           ))}
+        </div>
+
+        <div className="project-actions" aria-label={`${project.name} links`}>
+          <a href={project.github} target={project.github === "#" ? undefined : "_blank"} rel={project.github === "#" ? undefined : "noreferrer"}>GitHub <span aria-hidden="true">↗</span></a>
+          <a href={project.live} target={project.live === "#" ? undefined : "_blank"} rel={project.live === "#" ? undefined : "noreferrer"}>Live demo <span aria-hidden="true">↗</span></a>
         </div>
       </div>
 
@@ -251,14 +229,9 @@ export default function ProjectsSection() {
         </motion.h2>
 
         {/* Project grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.slice(0, 3).map((p, i) => (
-            <DirectionAwareCard key={p.id} project={p} delay={i * 0.12} />
-          ))}
-        </div>
-        <div className="grid md:grid-cols-2 gap-6 mt-6">
-          {projects.slice(3).map((p, i) => (
-            <DirectionAwareCard key={p.id} project={p} delay={(i + 3) * 0.12} />
+        <div className="project-grid grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {projects.map((p, i) => (
+            <DirectionAwareCard key={p.id} project={p} delay={i * 0.08} />
           ))}
         </div>
 
