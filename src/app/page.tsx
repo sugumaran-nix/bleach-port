@@ -24,7 +24,8 @@ function Glyph({ small = false }: { small?: boolean }) {
 }
 
 export default function Home() {
-  const [entered, setEntered] = useState(false);
+  // The archive is content-first: the visual intro must never block the portfolio on slow or reduced-motion devices.
+  const [entered, setEntered] = useState(true);
   const [bankai, setBankai] = useState(false);
   const [mask, setMask] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -63,9 +64,24 @@ export default function Home() {
   }, [entered]);
 
   useEffect(() => {
-    const onMove = (event: MouseEvent) => setMouse({ x: (event.clientX / window.innerWidth) * 100, y: (event.clientY / window.innerHeight) * 100 });
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
+    if (window.matchMedia("(pointer: coarse)").matches) return undefined;
+    let frame = 0;
+    let nextPoint: MouseEvent | null = null;
+    const onMove = (event: MouseEvent) => {
+      nextPoint = event;
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        if (!nextPoint) return;
+        setMouse({ x: (nextPoint.clientX / window.innerWidth) * 100, y: (nextPoint.clientY / window.innerHeight) * 100 });
+        nextPoint = null;
+      });
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const chapter = useMemo(() => entered ? "ARCHIVE" : "GATE", [entered]);
@@ -81,9 +97,9 @@ export default function Home() {
       <header className="archive-header">
         <a href="#gate" className="brand-lockup" aria-label="Return to gate"><Glyph small /><span>ARCHIVE / 09</span></a>
         <div className="header-status"><Circle size={8} fill="currentColor" /> SIGNAL {chapter} <span className="header-line" /> 18.08.26</div>
-        <button className="mask-trigger" onClick={() => { setMask(!mask); playArchiveCue("mask"); }} aria-pressed={mask}>{mask ? "REMOVE MASK" : "HOLLOW MASK"}<span>M</span></button><button className="bankai-trigger" onClick={() => { setBankai(!bankai); playArchiveCue("bankai"); }} aria-pressed={bankai}>{bankai ? "SEAL BANKAI" : "RELEASE BANKAI"}<span>B</span></button><button className="menu-trigger" onClick={() => { setMenu(!menu); playArchiveCue("menu"); }} aria-label="Open archive menu">{menu ? <X size={18} /> : <Menu size={18} />}</button>
+        <button className="mask-trigger" onClick={() => { setMask(!mask); playArchiveCue("mask"); }} aria-pressed={mask}>{mask ? "REMOVE MASK" : "HOLLOW MASK"}<span>M</span></button><button className="bankai-trigger" onClick={() => { setBankai(!bankai); playArchiveCue("bankai"); }} aria-pressed={bankai}>{bankai ? "SEAL BANKAI" : "RELEASE BANKAI"}<span>B</span></button><button className="menu-trigger" onClick={() => { setMenu(!menu); playArchiveCue("menu"); }} aria-label={menu ? "Close archive menu" : "Open archive menu"} aria-expanded={menu} aria-controls="archive-menu">{menu ? <X size={18} /> : <Menu size={18} />}</button>
       </header>
-      <AnimatePresence>{menu && <motion.nav className="menu-panel" initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}>{["gate", "signal", "vault", "ranks", "arsenal", "transmission"].map((item, index) => <a key={item} href={`#${item}`} onClick={() => setMenu(false)}><span>0{index + 1}</span>{item}</a>)}</motion.nav>}</AnimatePresence>
+      <AnimatePresence>{menu && <motion.nav id="archive-menu" className="menu-panel" initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}>{["gate", "signal", "vault", "ranks", "arsenal", "transmission"].map((item, index) => <a key={item} href={`#${item}`} onClick={() => setMenu(false)}><span>0{index + 1}</span>{item}</a>)}</motion.nav>}</AnimatePresence>
       <aside className="chapter-rail" aria-label="Archive chapters"><span className="rail-label">REALMS</span><div className="rail-track"><motion.i style={{ top: signalX }} /></div>{["GATE", "SIGNAL", "VAULT", "RANKS", "ARSENAL", "TRANSMISSION"].map((item, index) => <a href={`#${item.toLowerCase()}`} key={item}><b>0{index + 1}</b><span>{item}</span></a>)}</aside>
 
       <main>
